@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RoadGuard AI — Traffic Accident Risk Predictor</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============================== SIDEBAR ============================== -->
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2 4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>RoadGuard AI</h1>
+        <p>Traffic Accident Risk Predictor</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="map">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3Z" /><path d="M9 7v13M15 4v13" /></svg>
+        Live Risk Map
+      </button>
+      <button class="nav-item" data-view="forecast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
+        Seasonal Forecast
+      </button>
+      <button class="nav-item" data-view="predictor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><path d="M12 12 16 8" /></svg>
+        Risk Predictor
+      </button>
+      <button class="nav-item" data-view="reports">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z" /><path d="M15 3v4h4M9 12h6M9 16h6" /></svg>
+        Safety Reports
+      </button>
+    </nav>
+
+    <div class="side-heading">High-Risk Rate by Time of Day</div>
+    <div class="forecast-bars" id="sidebar-forecast-bars">
+      <!-- filled by main.js -->
+    </div>
+
+    <div class="best-window">
+      <div class="tag" id="safest-window-tag">--</div>
+      <div>
+        <strong id="safest-window-title">Safest time window</strong>
+        <small id="safest-window-sub">Loading…</small>
+      </div>
+    </div>
+
+    <div class="side-heading">Live Alerts</div>
+    <div id="sidebar-alerts">
+      <div class="alert-row"><small>Loading alerts…</small></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div><b>Model:</b> <span id="footer-model">—</span></div>
+      <div><b>Decision threshold:</b> <span id="footer-threshold">—</span></div>
+      <div><b>Test precision:</b> <span id="footer-precision">23.2% (~7× random baseline)</span></div>
+    </div>
+
+  </aside>
+
+  <!-- =============================== MAIN =============================== -->
+  <main class="main">
+
+    <!-- ---------- VIEW: LIVE RISK MAP ---------- -->
+    <section class="view active" id="view-map">
+      <div class="view-header">
+        <div>
+          <h2>Live Risk Map</h2>
+          <p>Predicted accident risk by state, evaluated on the 2023 held-out test set</p>
+        </div>
+      </div>
+
+      <div id="map-panel">
+        <div id="map"></div>
+        <div class="map-legend">
+          <span><i style="background:#1ea672"></i>Low</span>
+          <span><i style="background:#d3960a"></i>Medium</span>
+          <span><i style="background:#e0731f"></i>High</span>
+          <span><i style="background:#d8402f"></i>Critical</span>
+        </div>
+        <div class="map-badge" id="map-window-badge">Evaluation window: 2023 Q1</div>
+      </div>
+
+      <div class="stat-bar">
+        <div class="card stat-tile">
+          <div class="label">Records evaluated</div>
+          <div class="value" id="stat-total">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">Predicted high risk</div>
+          <div class="value red" id="stat-high-risk">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">Critical alerts</div>
+          <div class="value red" id="stat-critical">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">Highest-risk county</div>
+          <div class="value blue" id="stat-top-zone">—</div>
+        </div>
+      </div>
+
+      <div class="zones-table-wrap">
+        <h3>Top Dangerous Zones</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>State</th><th>County</th><th>Risk Level</th>
+              <th>Risk Score</th><th>Predicted High-Risk</th><th>Recommended Action</th>
+            </tr>
+          </thead>
+          <tbody id="zones-table-body">
+            <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: SEASONAL FORECAST ---------- -->
+    <section class="view" id="view-forecast">
+      <div class="view-header">
+        <div>
+          <h2>Seasonal Forecast</h2>
+          <p>How predicted accident risk shifts across seasons and times of day</p>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card chart-card">
+          <h3>High-Risk Rate by Season</h3>
+          <p class="note">Share of predictions flagged high risk, per season</p>
+          <canvas id="chart-season"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>High-Risk Rate by Time of Day</h3>
+          <p class="note">Share of predictions flagged high risk, per time period</p>
+          <canvas id="chart-time"></canvas>
+        </div>
+      </div>
+
+      <div class="info-banner" id="forecast-note">
+        Loading coverage note…
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: RISK PREDICTOR ---------- -->
+    <section class="view" id="view-predictor">
+      <div class="view-header">
+        <div>
+          <h2>Risk Predictor</h2>
+          <p>Score a specific location and time, then simulate interventions</p>
+        </div>
+      </div>
+
+      <div class="predictor-grid">
+
+        <div class="card form-card">
+          <h3>Scenario Inputs</h3>
+
+          <div class="field">
+            <label for="in-state">State</label>
+            <select id="in-state"></select>
+          </div>
+
+          <div class="field">
+            <label for="in-county">County</label>
+            <select id="in-county"></select>
+          </div>
+
+          <div class="field">
+            <label for="in-season">Season</label>
+            <select id="in-season">
+              <option>Winter</option>
+              <option selected>Spring</option>
+              <option>Summer</option>
+              <option>Autumn</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="in-hour">Hour of day: <span id="hour-value">8:00</span></label>
+            <input type="range" id="in-hour" min="0" max="23" value="8" />
+            <div class="hour-readout"><span>12 AM</span><span id="time-period-readout">Morning Peak</span><span>11 PM</span></div>
+          </div>
+
+          <div class="toggle-row">
+            <label for="in-weekend">Weekend</label>
+            <input type="checkbox" id="in-weekend" />
+          </div>
+
+          <div class="field">
+            <label>Road infrastructure present</label>
+            <div class="checkbox-grid">
+              <label><input type="checkbox" id="in-crossing" /> Crossing</label>
+              <label><input type="checkbox" id="in-junction" /> Junction</label>
+              <label><input type="checkbox" id="in-traffic-signal" checked /> Traffic Signal</label>
+              <label><input type="checkbox" id="in-stop" /> Stop Sign</label>
+              <label><input type="checkbox" id="in-station" /> Station</label>
+              <label><input type="checkbox" id="in-amenity" /> Amenity</label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btn-predict">Predict Risk</button>
+          <button class="btn btn-secondary" id="btn-simulate">Run Scenario Simulator</button>
+        </div>
+
+        <div class="result-stack">
+
+          <div class="card result-card" id="result-card">
+            <div class="placeholder">Fill in the form and click "Predict Risk" to see a result here.</div>
+          </div>
+
+          <div class="card chart-card" id="scenario-card" style="display:none;">
+            <h3>AI Scenario Simulator</h3>
+            <p class="note">Predicted risk if one condition changes, all else held equal</p>
+            <canvas id="chart-scenarios"></canvas>
+            <div class="recommendation-box" id="best-improvement-box"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: SAFETY REPORTS ---------- -->
+    <section class="view" id="view-reports">
+      <div class="view-header">
+        <div>
+          <h2>Safety Reports</h2>
+          <p>Auto-generated alerts and prevention recommendations for the 2023 test set</p>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <button class="chip active" data-tier="all">All</button>
+        <button class="chip" data-tier="Critical Alert">Critical</button>
+        <button class="chip" data-tier="High Alert">High</button>
+      </div>
+      <p class="note" style="margin:-8px 0 14px;">
+        Showing High and Critical alerts only — Medium/No-Alert predictions aren't urgent enough to warrant a report.
+      </p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>County</th><th>Season</th><th>Time Period</th><th>Alert</th>
+            <th>Safety Alert</th><th>Prevention Recommendation</th>
+          </tr>
+        </thead>
+        <tbody id="reports-table-body">
+          <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/map.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/predictor.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
