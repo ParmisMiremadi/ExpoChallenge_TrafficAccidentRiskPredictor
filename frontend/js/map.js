@@ -43,15 +43,21 @@ const RiskMap = (() => {
     return "Low";
   }
 
+  let tileLayer = null;
+
   function init() {
     if (map) return;
     // preferCanvas keeps the large primary-road layer performant.
-    map = L.map("map", { scrollWheelZoom: false, zoomControl: true, preferCanvas: true })
+    // scrollWheelZoom lets users zoom with the mouse wheel (more natural than
+    // the +/- buttons).
+    map = L.map("map", { scrollWheelZoom: true, zoomControl: true, preferCanvas: true })
       .setView([39.5, -98.3], 4);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 12,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    tileLayer = MapTiles.add(map);
+
+    // Swap to light/dark basemap tiles when the theme toggles.
+    document.addEventListener("themechange", () => {
+      tileLayer = MapTiles.swap(map, tileLayer);
+    });
 
     // Re-draw the road layer when crossing the detail threshold.
     map.on("zoomend", () => {
@@ -71,12 +77,12 @@ const RiskMap = (() => {
   }
 
   function statePopup(name, s, metric) {
-    if (!s) return `<div class="popup-title">${name}</div><div>No data</div>`;
+    if (!s) return `<div class="popup-title">${name}</div><div>${I18N.t("popup.noData")}</div>`;
     const cls = s.tier.toLowerCase();
     const line = metric === "severity"
-      ? `Avg severity: <span class="popup-risk ${cls}">${s.severity.toFixed(1)} / 4</span>`
-      : `Risk: <span class="popup-risk ${cls}">${s.tier}</span><br/>` +
-        `Est. probability: ${fmt.prob(s.prob)}`;
+      ? `${I18N.t("popup.avgSeverity")}: <span class="popup-risk ${cls}">${s.severity.toFixed(1)} / 4</span>`
+      : `${I18N.t("popup.risk")}: <span class="popup-risk ${cls}">${I18N.t("tier." + s.tier)}</span><br/>` +
+        `${I18N.t("popup.estProb")}: ${fmt.prob(s.prob)}`;
     return `<div class="popup-title">${name}</div><div>${line}</div>`;
   }
 

@@ -35,6 +35,14 @@ function tierClass(tier) {
   return (tier || "").toLowerCase();
 }
 
+/* Localized display strings for the canonical English tier/period keys. */
+function tierLabel(tier) {
+  return I18N.t("tier." + tier);
+}
+function periodLabel(period) {
+  return I18N.t("period." + period);
+}
+
 /* ------------------------------------------------------------------ */
 /* Nav                                                                */
 /* ------------------------------------------------------------------ */
@@ -51,6 +59,7 @@ function switchView(name) {
     Routing.init();
     setTimeout(() => Routing.invalidateSize(), 60);
   }
+  if (name === "overview") Overview.load();
 }
 
 function wireNav() {
@@ -65,14 +74,14 @@ function wireNav() {
 function updateSliderUi() {
   document.getElementById("hour-label").textContent = formatHour(State.hour);
   const period = timePeriod(State.hour);
-  document.getElementById("period-label").textContent = period;
+  document.getElementById("period-label").textContent = periodLabel(period);
   document.getElementById("now-pill").style.display =
     State.hour === new Date().getHours() ? "inline-block" : "none";
   document.querySelectorAll("#period-bands .band").forEach((b) => {
     b.classList.toggle("active", b.dataset.period === period);
   });
   document.getElementById("map-badge-text").textContent =
-    `${formatHour(State.hour)} · ${period}`;
+    `${formatHour(State.hour)} · ${periodLabel(period)}`;
 }
 
 async function refreshMap() {
@@ -82,15 +91,15 @@ async function refreshMap() {
   if (State.level === "road") {
     summary = await RiskMap.renderRoadsGeo(State.hour, State.metric);
     if (seq !== mapReqSeq) return;
-    document.getElementById("map-hint-text").textContent = "Primary roads (I / US / state)";
-    document.getElementById("stat-label-total").textContent = "Roads evaluated";
+    document.getElementById("map-hint-text").textContent = I18N.t("map.primaryRoads");
+    document.getElementById("stat-label-total").textContent = I18N.t("stat.roads");
   } else {
     const data = await API.riskMap(State.hour, State.metric, "state");
     if (seq !== mapReqSeq) return;
     await RiskMap.renderStates(data.states, State.metric);
     summary = data.summary;
-    document.getElementById("map-hint-text").textContent = "Zoom in for roads";
-    document.getElementById("stat-label-total").textContent = "States evaluated";
+    document.getElementById("map-hint-text").textContent = I18N.t("map.zoomRoads");
+    document.getElementById("stat-label-total").textContent = I18N.t("stat.states");
   }
 
   document.getElementById("stat-total").textContent = summary.total.toLocaleString();
@@ -111,7 +120,7 @@ async function refreshSidebarAlerts() {
       <div class="dot ${tierClass(r.tier)}"></div>
       <div>
         <strong>${r.name}</strong>
-        <small>${r.tier} · ${fmt.prob(r.prob)} · ${timePeriod(State.hour)}</small>
+        <small>${tierLabel(r.tier)} · ${fmt.prob(r.prob)} · ${periodLabel(timePeriod(State.hour))}</small>
       </div>
     </div>
   `).join("");
@@ -203,13 +212,24 @@ function loadLiveLocationWeather() {
 /* Boot                                                               */
 /* ------------------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", async () => {
+  I18N.wire();
+  Theme.wire();
   wireNav();
   RiskMap.init();
   wireControls();
   Zones.wire(() => State.hour);
   Forecast.wire();
   Routing.wire();
+  Overview.wire();
   NewsTicker.init();
+
+  // Re-render JS-injected strings (map badges/stats, sidebar alerts) when the
+  // language changes. The static labels are handled by I18N.apply() directly.
+  document.addEventListener("langchange", () => {
+    updateSliderUi();
+    refreshMap();
+    refreshSidebarAlerts();
+  });
 
   try {
     await Promise.all([

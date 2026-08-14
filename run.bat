@@ -1,5 +1,5 @@
 @echo off
-REM RoadGuard AI - double-click to launch, then open http://127.0.0.1:5000
+REM TraffiQ - double-click to launch, then open http://127.0.0.1:5000
 cd /d "%~dp0"
 
 REM Prefer the bundled project virtual-env; fall back to system Python.

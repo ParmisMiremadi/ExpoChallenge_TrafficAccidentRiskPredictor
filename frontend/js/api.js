@@ -32,6 +32,7 @@ const API = (() => {
 
   return {
     meta: () => get("/api/meta"),
+    metrics: () => get("/api/metrics"),
     news: () => get("/api/news"),
     weather: (lat, lng) => get(`/api/weather?${qs({ lat, lng })}`),
     riskMap: (hour, metric, level) => get(`/api/risk-map?${qs({ hour, metric, level })}`),
