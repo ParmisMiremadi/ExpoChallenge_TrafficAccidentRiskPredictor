@@ -11,6 +11,8 @@ const I18N = (() => {
   const DICT = {
     en: {
       "tagline": "Traffic Accident Risk Predictor",
+      "splash.desc": "AI-powered accident-risk prediction for every US road, live right now — risk maps, forecasts, and safer routes in one place.",
+      "splash.hint": "Press any key or click to continue",
       "nav.map": "Live Risk Map",
       "nav.zones": "Dangerous Zones & Alerts",
       "nav.forecast": "Risk Forecast",
@@ -134,6 +136,8 @@ const I18N = (() => {
 
     fa: {
       "tagline": "پیش‌بین خطر تصادفات ترافیکی",
+      "splash.desc": "پیش‌بینی هوشمند خطر تصادف برای هر جاده آمریکا، هم‌اکنون به‌صورت زنده — نقشه خطر، پیش‌بینی و مسیرهای ایمن‌تر در یک‌جا.",
+      "splash.hint": "برای ادامه، هر کلیدی را بزنید یا کلیک کنید",
       "nav.map": "نقشه زنده خطر",
       "nav.zones": "مناطق پرخطر و هشدارها",
       "nav.forecast": "پیش‌بینی خطر",
@@ -257,6 +261,8 @@ const I18N = (() => {
 
     hi: {
       "tagline": "यातायात दुर्घटना जोखिम पूर्वानुमानक",
+      "splash.desc": "अमेरिका की हर सड़क के लिए AI-संचालित दुर्घटना-जोखिम पूर्वानुमान, अभी लाइव — जोखिम मानचित्र, पूर्वानुमान और सुरक्षित मार्ग एक ही जगह।",
+      "splash.hint": "जारी रखने के लिए कोई भी कुंजी दबाएँ या क्लिक करें",
       "nav.map": "लाइव जोखिम मानचित्र",
       "nav.zones": "खतरनाक क्षेत्र और अलर्ट",
       "nav.forecast": "जोखिम पूर्वानुमान",
@@ -380,6 +386,8 @@ const I18N = (() => {
 
     es: {
       "tagline": "Predictor de riesgo de accidentes de tráfico",
+      "splash.desc": "Predicción de riesgo de accidentes con IA para cada carretera de EE. UU., en vivo ahora mismo — mapas de riesgo, pronósticos y rutas más seguras en un solo lugar.",
+      "splash.hint": "Presiona cualquier tecla o haz clic para continuar",
       "nav.map": "Mapa de riesgo en vivo",
       "nav.zones": "Zonas peligrosas y alertas",
       "nav.forecast": "Pronóstico de riesgo",

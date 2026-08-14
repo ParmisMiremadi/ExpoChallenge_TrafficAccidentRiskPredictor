@@ -23,6 +23,62 @@
 </head>
 <body>
 
+<!-- ===== Welcome screen: dismissed on any key press or click ===== -->
+<div id="splash" class="splash" role="button" tabindex="0" aria-label="Continue to SafeVector">
+  <div class="splash-bg" aria-hidden="true">
+    <div class="splash-blob b1"></div>
+    <div class="splash-blob b2"></div>
+    <div class="splash-blob b3"></div>
+  </div>
+
+  <div class="splash-content">
+    <div class="splash-logo-wrap">
+      <div class="splash-logo-ring" aria-hidden="true"></div>
+      <div class="splash-logo" id="splash-logo">
+        <svg viewBox="0 0 130 130" width="84" height="84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SafeVector">
+          <line x1="20" y1="110" x2="118" y2="110" stroke="#7c8aa0" stroke-opacity="0.5" stroke-width="4" stroke-linecap="round" />
+          <rect x="28" y="80" width="16" height="30" rx="4" fill="#1ea672" />
+          <rect x="52" y="60" width="16" height="50" rx="4" fill="#e8b400" />
+          <rect x="76" y="40" width="16" height="70" rx="4" fill="#e0731f" />
+          <rect x="100" y="15" width="16" height="95" rx="4" fill="#d8402f" />
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="splash-title">SafeVector</h1>
+    <p class="splash-tagline" data-i18n="tagline">Traffic Accident Risk Predictor</p>
+    <p class="splash-desc" data-i18n="splash.desc">AI-powered accident-risk prediction for every US road, live right now — risk maps, forecasts, and safer routes in one place.</p>
+
+    <div class="splash-features" id="splash-features">
+      <div class="sf-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3Z" /><path d="M9 7v13M15 4v13" /></svg>
+        <span data-i18n="nav.map">Live Risk Map</span>
+      </div>
+      <div class="sf-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v5M12 17.5v.5" /></svg>
+        <span data-i18n="nav.zones">Dangerous Zones &amp; Alerts</span>
+      </div>
+      <div class="sf-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15h4l2-6 3 12 3-9 2 3h4" /></svg>
+        <span data-i18n="nav.forecast">Risk Forecast</span>
+      </div>
+      <div class="sf-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="19" r="2.5" /><circle cx="18" cy="5" r="2.5" /><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6" /></svg>
+        <span data-i18n="nav.routing">Safe Routing</span>
+      </div>
+      <div class="sf-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg>
+        <span data-i18n="nav.overview">Project Overview</span>
+      </div>
+    </div>
+
+    <div class="splash-hint">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>
+      <span data-i18n="splash.hint">Press any key or click to continue</span>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Flowing "safe path" accent lines across the very top ===== -->
 <div class="top-accent" aria-hidden="true">
   <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
@@ -410,5 +466,6 @@
 <script src="/js/overview.js"></script>
 <script src="/js/news.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/splash.js"></script>
 </body>
 </html>
