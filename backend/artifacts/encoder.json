@@ -1,0 +1,16 @@
+{
+  "Season": {
+    "Autumn": 0,
+    "Spring": 1,
+    "Summer": 2,
+    "Winter": 3
+  },
+  "Time_Period": {
+    "Afternoon": 0,
+    "Evening Peak": 1,
+    "Late Night": 2,
+    "Morning": 3,
+    "Morning Peak": 4,
+    "Night": 5
+  }
+}

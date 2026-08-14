@@ -1,0 +1,124 @@
+{
+  "n_train": 1819175,
+  "n_test": 1688336,
+  "xgb_roc_auc": 0.7686,
+  "xgb_pr_auc": 0.8631,
+  "lr_roc_auc": 0.6697,
+  "lr_pr_auc": 0.7816,
+  "brier_raw": 0.1766,
+  "pi_train": 0.6942,
+  "pi_true": 0.00138,
+  "reliability_raw": [
+    [
+      0.06,
+      0.057,
+      12101
+    ],
+    [
+      0.158,
+      0.168,
+      38175
+    ],
+    [
+      0.252,
+      0.272,
+      68091
+    ],
+    [
+      0.352,
+      0.362,
+      88668
+    ],
+    [
+      0.453,
+      0.446,
+      127832
+    ],
+    [
+      0.553,
+      0.531,
+      187268
+    ],
+    [
+      0.652,
+      0.625,
+      251918
+    ],
+    [
+      0.752,
+      0.739,
+      328895
+    ],
+    [
+      0.851,
+      0.859,
+      399310
+    ],
+    [
+      0.931,
+      0.941,
+      186078
+    ]
+  ],
+  "calibration_note": "reliability/Brier are RAW probs vs the BALANCED test set (valid for the model as trained). Prior-correction to pi_true is for real-world serving via percentile risk levels -- not evaluable on a balanced set.",
+  "spatial": {
+    "county_risk_spearman": 0.987,
+    "top20_overlap": "19/20",
+    "hotspot_precision": 1.0,
+    "hotspot_recall": 0.914
+  },
+  "feature_importance_top": [
+    [
+      "Stop",
+      0.1247
+    ],
+    [
+      "Hour_cos",
+      0.1183
+    ],
+    [
+      "Is_Weekend",
+      0.087
+    ],
+    [
+      "Traffic_Signal",
+      0.07
+    ],
+    [
+      "Time_Period",
+      0.0662
+    ],
+    [
+      "Month_cos",
+      0.0651
+    ],
+    [
+      "Junction",
+      0.0628
+    ],
+    [
+      "Crossing",
+      0.0477
+    ],
+    [
+      "DayOfWeek",
+      0.0417
+    ],
+    [
+      "Amenity",
+      0.0383
+    ]
+  ],
+  "operating_point": {
+    "threshold": 0.4,
+    "precision": 0.726,
+    "recall": 0.949,
+    "f1": 0.822,
+    "confusion": {
+      "tn": 149315,
+      "fp": 406370,
+      "fn": 57720,
+      "tp": 1074931
+    }
+  }
+}

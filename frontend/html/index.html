@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RoadGuard AI — Traffic Accident Risk Predictor</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============================== SIDEBAR ============================== -->
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2 4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>RoadGuard AI</h1>
+        <p>Traffic Accident Risk Predictor</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="map">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3Z" /><path d="M9 7v13M15 4v13" /></svg>
+        Live Risk Map
+      </button>
+      <button class="nav-item" data-view="zones">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v5M12 17.5v.5" /></svg>
+        Dangerous Zones &amp; Alerts
+      </button>
+      <button class="nav-item" data-view="forecast">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15h4l2-6 3 12 3-9 2 3h4" /></svg>
+        Risk Forecast
+      </button>
+      <button class="nav-item" data-view="routing">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="19" r="2.5" /><circle cx="18" cy="5" r="2.5" /><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6" /></svg>
+        Safe Routing
+      </button>
+    </nav>
+
+    <div class="side-heading">Current Conditions</div>
+    <div class="conditions" id="conditions">
+      <div class="cond-time" id="cond-time">--:--</div>
+      <div class="cond-date" id="cond-date">Loading…</div>
+      <div class="cond-row" id="cond-weather">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a4 4 0 0 0 0-8 6 6 0 0 0-11.6-1A3.5 3.5 0 0 0 6 18Z" /></svg>
+        <span id="cond-weather-text">—</span>
+      </div>
+      <div class="cond-row" id="cond-location">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span id="cond-location-text">Location off</span>
+      </div>
+    </div>
+
+    <div class="side-heading">Live Alerts</div>
+    <div id="sidebar-alerts">
+      <div class="alert-row"><small>Loading alerts…</small></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div><b>Model:</b> <span id="footer-model">—</span></div>
+      <div><b>Prediction:</b> <span id="footer-target">Accident occurrence probability</span></div>
+      <div><b>Coverage:</b> <span id="footer-coverage">—</span></div>
+    </div>
+
+  </aside>
+
+  <!-- =============================== MAIN =============================== -->
+  <main class="main">
+
+    <!-- ---------- VIEW: LIVE RISK MAP ---------- -->
+    <section class="view active" id="view-map">
+      <div class="view-header">
+        <div>
+          <h2>Live Risk Map</h2>
+          <p>Predicted accident risk across the US right now — zoom in for street-level detail</p>
+        </div>
+      </div>
+
+      <div class="map-controls">
+        <div class="segmented" id="level-toggle">
+          <button class="active" data-level="state">State</button>
+          <button data-level="road">Road</button>
+        </div>
+        <div class="segmented" id="metric-toggle">
+          <button class="active" data-metric="risk">Risk</button>
+          <button data-metric="severity">Severity</button>
+        </div>
+        <div class="map-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" /></svg>
+          <input type="text" id="map-search-input" placeholder="Search a city or road…" />
+        </div>
+      </div>
+
+      <div id="map-panel">
+        <div id="map"></div>
+        <div class="map-legend">
+          <span><i style="background:#1ea672"></i>Low</span>
+          <span><i style="background:#d3960a"></i>Medium</span>
+          <span><i style="background:#e0731f"></i>High</span>
+          <span><i style="background:#d8402f"></i>Critical</span>
+        </div>
+        <div class="map-badge" id="map-badge">Conditions: <b id="map-badge-text">now</b></div>
+        <div class="map-hint">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3-3M11 8v6M8 11h6" /></svg>
+          <span id="map-hint-text">Zoom in for roads</span>
+        </div>
+      </div>
+
+      <div class="card hour-slider-wrap">
+        <div class="hour-slider-head">
+          <div>
+            <span class="hour-big" id="hour-label">6:00 PM</span>
+            <span class="now-pill" id="now-pill">now</span>
+          </div>
+          <div id="period-label" style="font-size:12.5px;color:var(--ink-soft);font-weight:600;">Evening Peak</div>
+        </div>
+        <input type="range" id="hour-slider" min="0" max="23" value="18" />
+        <div class="hour-ticks">
+          <span>12a</span><span>4a</span><span>8a</span><span>12p</span><span>4p</span><span>8p</span><span>11p</span>
+        </div>
+        <div class="period-bands" id="period-bands">
+          <div class="band" data-period="Night">Night</div>
+          <div class="band" data-period="Morning Peak">Morning peak</div>
+          <div class="band" data-period="Midday">Midday</div>
+          <div class="band" data-period="Afternoon">Afternoon</div>
+          <div class="band" data-period="Evening Peak">Evening peak</div>
+          <div class="band" data-period="Late Night">Late night</div>
+        </div>
+      </div>
+
+      <div class="stat-bar">
+        <div class="card stat-tile">
+          <div class="label" id="stat-label-total">States evaluated</div>
+          <div class="value" id="stat-total">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">High-risk zones now</div>
+          <div class="value red" id="stat-high-risk">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">Active alerts</div>
+          <div class="value red" id="stat-alerts">—</div>
+        </div>
+        <div class="card stat-tile">
+          <div class="label">Highest-risk area</div>
+          <div class="value blue" id="stat-top-zone">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: DANGEROUS ZONES & ALERTS ---------- -->
+    <section class="view" id="view-zones">
+      <div class="view-header">
+        <div>
+          <h2>Dangerous Zones &amp; Alerts</h2>
+          <p>Highest-risk areas under current conditions, with the reason and what to do</p>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <button class="chip active" data-tier="all">All</button>
+        <button class="chip" data-tier="Critical">Critical</button>
+        <button class="chip" data-tier="High">High</button>
+        <button class="chip" data-tier="Medium">Medium</button>
+        <span class="spacer"></span>
+        <button class="btn btn-secondary btn-sm" id="btn-export">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" /></svg>
+          Export report
+        </button>
+      </div>
+
+      <div class="zone-list" id="zone-list">
+        <div class="placeholder">Loading dangerous zones…</div>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: RISK FORECAST ---------- -->
+    <section class="view" id="view-forecast">
+      <div class="view-header">
+        <div>
+          <h2>Risk Forecast</h2>
+          <p>How accident risk for a place changes over the hours and days ahead — early warning</p>
+        </div>
+      </div>
+
+      <div class="forecast-search">
+        <div class="map-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" /></svg>
+          <input type="text" id="forecast-search-input" placeholder="Search a city or road to forecast…" value="Los Angeles, CA" />
+        </div>
+        <button class="btn btn-primary" id="btn-forecast">Forecast</button>
+      </div>
+
+      <div class="forecast-summary" id="forecast-summary">
+        <div class="card peak-callout">
+          <div class="k">Location</div>
+          <div class="v" id="fc-location">—</div>
+        </div>
+        <div class="card peak-callout">
+          <div class="k">Riskiest window (next 24h)</div>
+          <div class="v red" id="fc-peak">—</div>
+        </div>
+        <div class="card peak-callout">
+          <div class="k">Safest window (next 24h)</div>
+          <div class="v green" id="fc-safe">—</div>
+        </div>
+      </div>
+
+      <div class="forecast-grid">
+        <div class="card chart-card">
+          <h3>Next 24 hours</h3>
+          <p class="note">Predicted accident-risk level by hour, for the searched location</p>
+          <canvas id="chart-hourly"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>Next 7 days</h3>
+          <p class="note">Daily peak risk, combining the model with the weather forecast</p>
+          <canvas id="chart-daily"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3>What's driving the risk</h3>
+          <p class="note">Top contributing factors for this location and time</p>
+          <div class="factor-tags" id="fc-factors"></div>
+          <div class="info-banner" id="fc-tip" style="margin-top:14px;">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: SAFE ROUTING ---------- -->
+    <section class="view" id="view-routing">
+      <div class="view-header">
+        <div>
+          <h2>Safe Routing</h2>
+          <p>Find the route that avoids high-risk areas, not just the fastest one</p>
+        </div>
+      </div>
+
+      <div class="route-grid">
+        <div class="card route-form">
+          <h3>Plan a route</h3>
+          <div class="field">
+            <label for="route-from">From</label>
+            <input type="text" id="route-from" value="Santa Monica, CA" />
+          </div>
+          <div class="field">
+            <label for="route-to">To</label>
+            <input type="text" id="route-to" value="Pasadena, CA" />
+          </div>
+          <div class="field">
+            <label for="route-when">Departing</label>
+            <select id="route-when">
+              <option value="now" selected>Now</option>
+              <option value="+1">In 1 hour</option>
+              <option value="+3">In 3 hours</option>
+              <option value="evening">This evening</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-route" style="width:100%;">Find safe route</button>
+
+          <div class="route-options" id="route-options">
+            <div class="placeholder" style="padding:20px 10px;">Enter start and destination, then find a route.</div>
+          </div>
+
+          <p class="stretch-note">Routes from OSM road data, ranked by the model's per-segment risk along each route.</p>
+        </div>
+
+        <div id="route-map"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================ LIVE NEWS TICKER ============================ -->
+<div class="ticker" id="ticker">
+  <div class="ticker-label"><span class="live-dot"></span>LIVE</div>
+  <div class="ticker-viewport">
+    <div class="ticker-track" id="ticker-track">
+      <span class="tk-item">Loading live traffic &amp; weather updates…</span>
+    </div>
+  </div>
+  <button class="ticker-toggle" id="ticker-toggle" aria-label="Hide news ticker" title="Hide">
+    <svg id="ticker-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/map.js"></script>
+<script src="/js/zones.js"></script>
+<script src="/js/forecast.js"></script>
+<script src="/js/routing.js"></script>
+<script src="/js/news.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
