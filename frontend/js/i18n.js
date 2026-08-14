@@ -1,5 +1,6 @@
-/* Lightweight i18n. Translates any element carrying a data-i18n key (text) or
-   data-i18n-ph (placeholder), switches document direction (RTL for Farsi),
+/* Lightweight i18n. Translates any element carrying a data-i18n key (text),
+   data-i18n-ph (placeholder), or data-i18n-aria (aria-label), switches
+   document direction (RTL for Farsi),
    persists the choice, and emits a `langchange` event so views can re-render
    the strings they inject dynamically. Free-text produced by the backend
    (zone reasons, recommendations, forecast tips, weather labels) stays in its
@@ -11,7 +12,8 @@ const I18N = (() => {
   const DICT = {
     en: {
       "tagline": "Traffic Accident Risk Predictor",
-      "splash.desc": "AI-powered accident-risk prediction for every US road, live right now — risk maps, forecasts, and safer routes in one place.",
+      "splash.desc1": "AI-powered accident-risk prediction for every US road, live right now —",
+      "splash.desc2": "risk maps, forecasts, and safer routes in one place.",
       "splash.hint": "Press any key or click to continue",
       "nav.map": "Live Risk Map",
       "nav.zones": "Dangerous Zones & Alerts",
@@ -49,6 +51,9 @@ const I18N = (() => {
       "stat.high": "High-risk zones now",
       "stat.alerts": "Active alerts",
       "stat.top": "Highest-risk area",
+      "stat.top.infoLabel": "What does this mean?",
+      "stat.top.info.state": "Average predicted risk across sampled points in this state — not necessarily its single riskiest spot.",
+      "stat.top.info.road": "The single highest-risk road segment right now, out of all roads scored — not an area average, so it can read higher than the county and state figures shown elsewhere.",
       "band.Night": "Night",
       "band.Morning Peak": "Morning peak",
       "band.Midday": "Midday",
@@ -136,7 +141,8 @@ const I18N = (() => {
 
     fa: {
       "tagline": "پیش‌بین خطر تصادفات ترافیکی",
-      "splash.desc": "پیش‌بینی هوشمند خطر تصادف برای هر جاده آمریکا، هم‌اکنون به‌صورت زنده — نقشه خطر، پیش‌بینی و مسیرهای ایمن‌تر در یک‌جا.",
+      "splash.desc1": "پیش‌بینی هوشمند خطر تصادف برای هر جاده آمریکا، هم‌اکنون به‌صورت زنده —",
+      "splash.desc2": "نقشه خطر، پیش‌بینی و مسیرهای ایمن‌تر در یک‌جا.",
       "splash.hint": "برای ادامه، هر کلیدی را بزنید یا کلیک کنید",
       "nav.map": "نقشه زنده خطر",
       "nav.zones": "مناطق پرخطر و هشدارها",
@@ -174,6 +180,9 @@ const I18N = (() => {
       "stat.high": "مناطق پرخطر کنونی",
       "stat.alerts": "هشدارهای فعال",
       "stat.top": "پرخطرترین منطقه",
+      "stat.top.infoLabel": "این یعنی چه؟",
+      "stat.top.info.state": "میانگین خطر پیش‌بینی‌شده در نقاط نمونه‌برداری‌شده این ایالت — لزوماً پرخطرترین نقطه آن نیست.",
+      "stat.top.info.road": "پرخطرترین قطعه جاده در حال حاضر، از میان تمام جاده‌های ارزیابی‌شده — این میانگین یک منطقه نیست، پس ممکن است بالاتر از ارقام شهرستان و ایالت نمایش داده‌شده در جای دیگر باشد.",
       "band.Night": "شب",
       "band.Morning Peak": "اوج صبح",
       "band.Midday": "ظهر",
@@ -261,7 +270,8 @@ const I18N = (() => {
 
     hi: {
       "tagline": "यातायात दुर्घटना जोखिम पूर्वानुमानक",
-      "splash.desc": "अमेरिका की हर सड़क के लिए AI-संचालित दुर्घटना-जोखिम पूर्वानुमान, अभी लाइव — जोखिम मानचित्र, पूर्वानुमान और सुरक्षित मार्ग एक ही जगह।",
+      "splash.desc1": "अमेरिका की हर सड़क के लिए AI-संचालित दुर्घटना-जोखिम पूर्वानुमान, अभी लाइव —",
+      "splash.desc2": "जोखिम मानचित्र, पूर्वानुमान और सुरक्षित मार्ग एक ही जगह।",
       "splash.hint": "जारी रखने के लिए कोई भी कुंजी दबाएँ या क्लिक करें",
       "nav.map": "लाइव जोखिम मानचित्र",
       "nav.zones": "खतरनाक क्षेत्र और अलर्ट",
@@ -299,6 +309,9 @@ const I18N = (() => {
       "stat.high": "अभी उच्च जोखिम क्षेत्र",
       "stat.alerts": "सक्रिय अलर्ट",
       "stat.top": "सर्वाधिक जोखिम वाला क्षेत्र",
+      "stat.top.infoLabel": "इसका क्या मतलब है?",
+      "stat.top.info.state": "इस राज्य में नमूना बिंदुओं पर औसत अनुमानित जोखिम — जरूरी नहीं कि यह सबसे जोखिम भरा स्थान हो।",
+      "stat.top.info.road": "अभी सभी मूल्यांकित सड़कों में से सबसे अधिक जोखिम वाला एकल सड़क खंड — यह किसी क्षेत्र का औसत नहीं है, इसलिए यह अन्यत्र दिखाए गए काउंटी और राज्य के आंकड़ों से अधिक हो सकता है।",
       "band.Night": "रात",
       "band.Morning Peak": "सुबह पीक",
       "band.Midday": "दोपहर",
@@ -386,7 +399,8 @@ const I18N = (() => {
 
     es: {
       "tagline": "Predictor de riesgo de accidentes de tráfico",
-      "splash.desc": "Predicción de riesgo de accidentes con IA para cada carretera de EE. UU., en vivo ahora mismo — mapas de riesgo, pronósticos y rutas más seguras en un solo lugar.",
+      "splash.desc1": "Predicción de riesgo de accidentes con IA para cada carretera de EE. UU., en vivo ahora mismo —",
+      "splash.desc2": "mapas de riesgo, pronósticos y rutas más seguras en un solo lugar.",
       "splash.hint": "Presiona cualquier tecla o haz clic para continuar",
       "nav.map": "Mapa de riesgo en vivo",
       "nav.zones": "Zonas peligrosas y alertas",
@@ -424,6 +438,9 @@ const I18N = (() => {
       "stat.high": "Zonas de alto riesgo ahora",
       "stat.alerts": "Alertas activas",
       "stat.top": "Área de mayor riesgo",
+      "stat.top.infoLabel": "¿Qué significa esto?",
+      "stat.top.info.state": "Riesgo promedio previsto en los puntos muestreados de este estado — no necesariamente su punto más riesgoso.",
+      "stat.top.info.road": "El segmento de carretera de mayor riesgo en este momento, de entre todas las carreteras evaluadas — no es un promedio de área, por lo que puede ser más alto que las cifras de condado y estado mostradas en otras partes.",
       "band.Night": "Noche",
       "band.Morning Peak": "Pico matutino",
       "band.Midday": "Mediodía",
@@ -524,6 +541,9 @@ const I18N = (() => {
     });
     document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
       el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph")));
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
     });
   }
 

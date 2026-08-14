@@ -1,4 +1,4 @@
-"""Live news ticker feed for the RoadGuard AI dashboard.
+"""Live news ticker feed for the SafeVector dashboard.
 
 Blends two sources into short, one-line ticker items:
 
@@ -43,7 +43,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite").strip()
 NEWS_URL = os.environ.get("NEWS_URL", "").strip()
 
-USER_AGENT = "RoadGuardAI/1.0 (traffic-risk demo)"
+USER_AGENT = "SafeVector/1.0 (traffic-risk demo)"
 # Jina's edge (Cloudflare) blocks the default urllib signature, so send a
 # browser-like User-Agent for that request.
 BROWSER_UA = (

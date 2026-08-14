@@ -22,7 +22,7 @@ import numpy as np
 
 import serving
 
-UA = {"User-Agent": "RoadGuardAI/1.0 (traffic-risk demo)"}
+UA = {"User-Agent": "SafeVector/1.0 (traffic-risk demo)"}
 STATE_FULL = serving.STATE_FULL
 
 

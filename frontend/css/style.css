@@ -475,11 +475,56 @@ nav.nav {
   border-radius: var(--radius);
 }
 
-.stat-tile .label { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+.stat-tile .label {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
 .stat-tile .value { font-size: 20px; font-weight: 700; }
 .stat-tile .value.blue { color: var(--blue-dark); }
 .stat-tile .value.red { color: var(--red); }
 .stat-tile .value.green { color: var(--green); }
+
+.info-dot {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: .4;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+.info-dot:hover, .info-dot:focus-visible { opacity: .8; }
+
+.info-popover {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 6px;
+  width: 220px;
+  max-width: 80vw;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--blue-light);
+  color: var(--blue-dark);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+.info-popover[hidden] { display: none; }
 
 /* ------------------------------------------------------------------ */
 /* Tables + badges (shared)                                             */
@@ -1360,6 +1405,7 @@ table.data-table tr:last-child td { border-bottom: none; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  min-height: 1.15em;
 }
 
 .splash-tagline {
@@ -1369,7 +1415,23 @@ table.data-table tr:last-child td { border-bottom: none; }
   color: var(--ink-soft);
   text-transform: uppercase;
   letter-spacing: .09em;
+  min-height: 1.4em;
 }
+
+/* typewriter caret while the title/tagline are being typed in */
+.splash-title.is-typing::after,
+.splash-tagline.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: .85em;
+  margin-inline-start: 4px;
+  vertical-align: -.1em;
+  background: var(--blue-dark);
+  animation: splash-caret .85s steps(1) infinite;
+}
+
+@keyframes splash-caret { 50% { opacity: 0; } }
 
 .splash-desc {
   margin: 0 auto 30px;
@@ -1379,6 +1441,16 @@ table.data-table tr:last-child td { border-bottom: none; }
   color: var(--ink-soft);
 }
 
+/* description lines pop in one at a time, same "pop" feel as the pills */
+.sd-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s ease, transform .4s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.sd-line.line-in { opacity: 1; transform: translateY(0); }
+
 .splash-features {
   display: flex;
   flex-wrap: wrap;
@@ -1387,6 +1459,7 @@ table.data-table tr:last-child td { border-bottom: none; }
   margin: 0 auto 36px;
 }
 
+/* each pill pops in on its own, one after another, once typing is done */
 .sf-pill {
   display: flex;
   align-items: center;
@@ -1398,9 +1471,14 @@ table.data-table tr:last-child td { border-bottom: none; }
   color: var(--ink-soft);
   font-size: 12.5px;
   font-weight: 600;
-  transition: border-color .4s ease, color .4s ease, background .4s ease,
-              box-shadow .4s ease, transform .4s ease;
+  opacity: 0;
+  transform: translateY(8px) scale(.85);
+  transition: opacity .3s ease, transform .4s cubic-bezier(.34, 1.56, .64, 1),
+              border-color .4s ease, color .4s ease, background .4s ease,
+              box-shadow .4s ease;
 }
+
+.sf-pill.pill-in { opacity: 1; transform: translateY(0) scale(1); }
 
 .sf-pill svg { opacity: .65; transition: opacity .4s ease; }
 
@@ -1409,7 +1487,7 @@ table.data-table tr:last-child td { border-bottom: none; }
   color: var(--blue-dark);
   background: var(--blue-light);
   box-shadow: 0 6px 16px rgba(47, 95, 224, .18);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1);
 }
 
 .sf-pill.is-active svg { opacity: 1; }
@@ -1422,6 +1500,14 @@ table.data-table tr:last-child td { border-bottom: none; }
   font-weight: 600;
   color: var(--muted);
   letter-spacing: .03em;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* revealed once typing + the pill pop-in sequence are both done */
+.splash-content.is-revealed .splash-hint {
+  opacity: 1;
+  transform: translateY(0);
   animation: splash-hint-pulse 2s ease-in-out infinite;
 }
 

@@ -45,9 +45,12 @@
       </div>
     </div>
 
-    <h1 class="splash-title">SafeVector</h1>
-    <p class="splash-tagline" data-i18n="tagline">Traffic Accident Risk Predictor</p>
-    <p class="splash-desc" data-i18n="splash.desc">AI-powered accident-risk prediction for every US road, live right now — risk maps, forecasts, and safer routes in one place.</p>
+    <h1 class="splash-title" id="splash-title">SafeVector</h1>
+    <p class="splash-tagline" id="splash-tagline" data-i18n="tagline">Traffic Accident Risk Predictor</p>
+    <p class="splash-desc" id="splash-desc">
+      <span class="sd-line" data-i18n="splash.desc1">AI-powered accident-risk prediction for every US road, live right now —</span>
+      <span class="sd-line" data-i18n="splash.desc2">risk maps, forecasts, and safer routes in one place.</span>
+    </p>
 
     <div class="splash-features" id="splash-features">
       <div class="sf-pill">
@@ -269,7 +272,11 @@
           <div class="value red" id="stat-alerts">—</div>
         </div>
         <div class="card stat-tile">
-          <div class="label" data-i18n="stat.top">Highest-risk area</div>
+          <div class="label">
+            <span data-i18n="stat.top">Highest-risk area</span>
+            <button type="button" class="info-dot" id="stat-top-info" data-i18n-aria="stat.top.infoLabel" aria-label="What does this mean?">?</button>
+            <div class="info-popover" id="stat-top-popover" hidden></div>
+          </div>
           <div class="value blue" id="stat-top-zone">—</div>
         </div>
       </div>
