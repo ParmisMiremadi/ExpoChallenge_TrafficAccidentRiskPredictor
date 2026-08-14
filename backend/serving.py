@@ -206,6 +206,133 @@ def compute(hour, date=None, metric="risk"):
 
 
 # --------------------------------------------------------------------------- #
+# Location search suggestions (autocomplete)                                   #
+# --------------------------------------------------------------------------- #
+_suggest_idx = None
+
+
+def _build_suggest_index():
+    """Flat searchable list of states, counties, and cities (with centroids),
+    built once and reused for every autocomplete request."""
+    global _suggest_idx
+    if _suggest_idx is not None:
+        return _suggest_idx
+    _load()
+    items = []
+
+    prof = _county_meta.reset_index()
+    # States (centroid = mean of the state's county centroids).
+    st_cent = prof.groupby("State")[["Start_Lat", "Start_Lng"]].mean()
+    for abbr, row in st_cent.iterrows():
+        full = STATE_FULL.get(abbr, abbr)
+        items.append({"label": full, "type": "state",
+                      "q": f"{full} {abbr}".lower(),
+                      "lat": float(row["Start_Lat"]), "lng": float(row["Start_Lng"]),
+                      "state": full, "county": "", "weight": 50000.0})
+
+    # Counties.
+    for r in prof.itertuples(index=False):
+        lab = f"{r.County}, {r.State}"
+        items.append({"label": lab, "type": "county", "q": lab.lower(),
+                      "lat": float(r.Start_Lat), "lng": float(r.Start_Lng),
+                      "state": STATE_FULL.get(r.State, r.State), "county": r.County,
+                      "weight": float(r.n_acc)})
+
+    # Cities.
+    cl = pd.read_csv(os.path.join(ART, "city_lookup.csv"), keep_default_na=False)
+    for r in cl.itertuples(index=False):
+        lab = f"{r.City}, {r.State}"
+        items.append({"label": lab, "type": "city", "q": lab.lower(),
+                      "lat": float(r.Start_Lat), "lng": float(r.Start_Lng),
+                      "state": STATE_FULL.get(r.State, r.State), "county": r.County,
+                      "weight": float(r.n_acc)})
+
+    _suggest_idx = items
+    return items
+
+
+def suggest(q, limit=8):
+    """Ranked location suggestions for a partial query. Prefix matches and more
+    accident-heavy (better-known) places rank higher; states rank above cities,
+    cities above counties, for an equally good text match."""
+    q = (q or "").strip().lower()
+    if len(q) < 2:
+        return []
+    type_boost = {"state": 400, "city": 150, "county": 80}
+    scored = []
+    for it in _build_suggest_index():
+        lab = it["q"]
+        pos = lab.find(q)
+        if pos < 0:
+            continue
+        if lab.startswith(q):
+            score = 3000
+        elif any(tok.startswith(q) for tok in lab.replace(",", " ").split()):
+            score = 1500
+        else:
+            score = 500 - pos
+        score += type_boost.get(it["type"], 0)
+        score += min(it["weight"], 20000.0) / 20000.0 * 200
+        scored.append((score, it))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    out, seen = [], set()
+    for _, it in scored:
+        key = (it["label"], it["type"])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({"label": it["label"], "type": it["type"],
+                    "lat": it["lat"], "lng": it["lng"],
+                    "state": it["state"], "county": it["county"]})
+        if len(out) >= limit:
+            break
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# County-level scoring (choropleth shown when zooming into the state map)      #
+# --------------------------------------------------------------------------- #
+def compute_counties(hour, date=None, metric="risk"):
+    """Per-county risk + severity for the current hour, keyed by "STATE|County"
+    (state abbreviation + county name) so the frontend can join it to a counties
+    GeoJSON. Same model + calibration as the state choropleth, just not
+    aggregated up to the state level."""
+    date = date or datetime.date.today()
+    _load()
+    _, county = _aggregates(hour, date)
+
+    # Severity per county from the county metadata (weighted per-road means).
+    sev_series = _county_meta["severity"]
+
+    sev_tier = (_quantile_tiers(sev_series.to_numpy())
+                if metric == "severity" else None)
+
+    counties = {}
+    for (abbr, name), prob in county.items():
+        prob = float(prob)
+        try:
+            sev = float(sev_series.loc[(abbr, name)])
+        except KeyError:
+            sev = 2.0
+        tier = sev_tier(sev) if metric == "severity" else str(ms.tier_of(prob))
+        counties[f"{abbr}|{name}"] = {
+            "risk": round(prob, 6),
+            "prob": round(prob, 6),
+            "severity": round(sev, 2),
+            "tier": tier,
+            "state": STATE_FULL.get(abbr, abbr),
+            "county": name,
+            "value": round(sev / 4.0, 3) if metric == "severity" else round(prob, 6),
+        }
+
+    return {
+        "level": "county", "hour": int(hour), "metric": metric,
+        "time_period": time_period(hour), "counties": counties,
+    }
+
+
+# --------------------------------------------------------------------------- #
 # Road-level scoring (primary-road network)                                   #
 # --------------------------------------------------------------------------- #
 def _load_roads():

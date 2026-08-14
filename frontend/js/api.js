@@ -32,11 +32,14 @@ const API = (() => {
 
   return {
     meta: () => get("/api/meta"),
+    metrics: () => get("/api/metrics"),
     news: () => get("/api/news"),
     weather: (lat, lng) => get(`/api/weather?${qs({ lat, lng })}`),
     riskMap: (hour, metric, level) => get(`/api/risk-map?${qs({ hour, metric, level })}`),
     statesGeo: () => get("/data/us-states.geojson"),
+    countiesGeo: () => get("/data/us-counties.geojson"),
     roadsGeo: () => get("/data/primary_roads.geojson"),
+    suggest: (q, limit) => get(`/api/suggest?${qs({ q, limit })}`),
     zones: (hour, tier) => get(`/api/zones?${qs({ hour, tier })}`),
     forecast: (place) => get(`/api/forecast?${qs({ place })}`),
     route: (from, to, when) => get(`/api/route?${qs({ from, to, when })}`),

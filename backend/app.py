@@ -1,5 +1,5 @@
 """
-RoadGuard AI - Traffic Accident Risk Predictor (v3).
+SafeVector - Traffic Accident Risk Predictor.
 
 Flask backend. Serves the frontend and the live API, all backed by the trained
 occurrence model:
@@ -32,6 +32,9 @@ import weather_service
 FRONTEND_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "frontend")
 )
+ARTIFACTS_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "artifacts")
+)
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
@@ -63,6 +66,11 @@ def js(filename):
 @app.route("/data/<path:filename>")
 def data(filename):
     return send_from_directory(os.path.join(FRONTEND_DIR, "data"), filename)
+
+
+@app.route("/img/<path:filename>")
+def img(filename):
+    return send_from_directory(os.path.join(FRONTEND_DIR, "img"), filename)
 
 
 # --------------------------------------------------------------------------- #
@@ -142,6 +150,64 @@ def meta():
     })
 
 
+@app.route("/api/metrics")
+def metrics():
+    """Model-performance metrics for the Project Overview view.
+
+    Returns the trained model's evaluation metrics (from artifacts/metrics.json)
+    reshaped into a small, UI-friendly payload of gauges + context.
+    """
+    try:
+        with open(os.path.join(ARTIFACTS_DIR, "metrics.json"), encoding="utf-8") as f:
+            m = _json.load(f)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(exc)}), 200
+
+    op = m.get("operating_point", {})
+    sp = m.get("spatial", {})
+
+    # Each gauge: value in [0,1] unless noted; `higher_better` drives coloring.
+    gauges = [
+        {"key": "roc_auc", "label": "ROC-AUC", "value": m.get("xgb_roc_auc"),
+         "baseline": m.get("lr_roc_auc"), "higher_better": True,
+         "hint": "Ranking quality vs. logistic-regression baseline"},
+        {"key": "pr_auc", "label": "PR-AUC", "value": m.get("xgb_pr_auc"),
+         "baseline": m.get("lr_pr_auc"), "higher_better": True,
+         "hint": "Precision–recall area (PR-ROC)"},
+        {"key": "precision", "label": "Precision", "value": op.get("precision"),
+         "higher_better": True, "hint": f"At threshold {op.get('threshold')}"},
+        {"key": "recall", "label": "Recall", "value": op.get("recall"),
+         "higher_better": True, "hint": f"At threshold {op.get('threshold')}"},
+        {"key": "f1", "label": "F1 score", "value": op.get("f1"),
+         "higher_better": True, "hint": "Harmonic mean of precision & recall"},
+        {"key": "brier", "label": "Brier score", "value": m.get("brier_raw"),
+         "higher_better": False, "hint": "Calibration error (lower is better)"},
+        {"key": "county_spearman", "label": "County risk Spearman",
+         "value": sp.get("county_risk_spearman"), "higher_better": True,
+         "hint": "Spatial rank agreement across counties"},
+        {"key": "hotspot_precision", "label": "Hotspot precision",
+         "value": sp.get("hotspot_precision"), "higher_better": True,
+         "hint": "Predicted hotspots that are real"},
+        {"key": "hotspot_recall", "label": "Hotspot recall",
+         "value": sp.get("hotspot_recall"), "higher_better": True,
+         "hint": "Real hotspots that were caught"},
+    ]
+
+    return jsonify({
+        "ok": True,
+        "model_name": "XGBoost occurrence classifier",
+        "gauges": gauges,
+        "dataset": {
+            "n_train": m.get("n_train"),
+            "n_test": m.get("n_test"),
+            "top20_overlap": sp.get("top20_overlap"),
+        },
+        "feature_importance": m.get("feature_importance_top", []),
+        "reliability": m.get("reliability_raw", []),
+        "note": m.get("calibration_note", ""),
+    })
+
+
 @app.route("/api/risk-map")
 def risk_map():
     hour = int(request.args.get("hour", datetime.now().hour))
@@ -151,8 +217,22 @@ def risk_map():
     if level == "road":
         return jsonify(serving.road_scores(hour))
 
+    if level == "county":
+        return jsonify(serving.compute_counties(hour, metric=metric))
+
     # Default: state choropleth, scored live by the real model.
     return jsonify(serving.compute(hour, metric=metric))
+
+
+@app.route("/api/suggest")
+def suggest():
+    """Location autocomplete: states, counties, and cities matching `q`."""
+    q = request.args.get("q", "")
+    try:
+        limit = int(request.args.get("limit", 8))
+    except (TypeError, ValueError):
+        limit = 8
+    return jsonify(serving.suggest(q, limit=limit))
 
 
 @app.route("/api/zones")
@@ -196,4 +276,4 @@ if __name__ == "__main__":
     # Only warm in the reloader's worker process, not the supervisor.
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         threading.Thread(target=_warm, daemon=True).start()
-    app.run(host="127.0.0.1", port=5000, debug=True, threaded=True)
+    app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5000)), debug=True, threaded=True)

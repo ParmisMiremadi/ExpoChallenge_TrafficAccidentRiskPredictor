@@ -1,0 +1,7 @@
+<svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SafeVector">
+  <line x1="20" y1="110" x2="118" y2="110" stroke="#7c8aa0" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
+  <rect x="28" y="80" width="16" height="30" rx="4" fill="#1ea672"/>
+  <rect x="52" y="60" width="16" height="50" rx="4" fill="#e8b400"/>
+  <rect x="76" y="40" width="16" height="70" rx="4" fill="#e0731f"/>
+  <rect x="100" y="15" width="16" height="95" rx="4" fill="#d8402f"/>
+</svg>

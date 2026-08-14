@@ -1,9 +1,9 @@
-# RoadGuard AI — Traffic Accident Risk Predictor
+# SafeVector — Traffic Accident Risk Predictor
 
 Predicting **where and when** traffic accidents are likely to occur — *before* they
 happen — so that road users, planners, and responders can act early.
 
-RoadGuard AI is a machine-learning system that scores every US county and every
+SafeVector is a machine-learning system that scores every US county and every
 primary-road segment for accident **occurrence risk** under live conditions
 (time of day, season, weather, road infrastructure), and presents the result as
 an interactive early-warning dashboard.
@@ -43,7 +43,7 @@ than "which past crashes were bad."
 
 ## 2. How it addresses the competition brief
 
-| Brief item | How RoadGuard AI delivers it |
+| Brief item | How SafeVector delivers it |
 |---|---|
 | Analyze road & traffic data | 3.8M road-time records; 22 features spanning geography, road infrastructure, time, and weather (§4) |
 | Predict accident risk levels | Calibrated probability + Low/Medium/High/Critical tier for any place & time (§5) |

@@ -36,11 +36,14 @@ const Forecast = (() => {
   }
 
   function wire() {
-    const run = () => load(document.getElementById("forecast-search-input").value.trim());
+    const input = document.getElementById("forecast-search-input");
+    const run = () => load(input.value.trim());
     document.getElementById("btn-forecast").addEventListener("click", run);
-    document.getElementById("forecast-search-input").addEventListener("keydown", (e) => {
+    input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") run();
     });
+    // Picking a suggestion runs the forecast for that place immediately.
+    Autocomplete.attach(input, { onSelect: (it) => load(it.label) });
   }
 
   return { load, wire };

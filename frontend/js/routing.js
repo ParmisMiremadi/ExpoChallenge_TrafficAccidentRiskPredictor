@@ -4,24 +4,28 @@
 
 const Routing = (() => {
   let map = null;
+  let lastData = null;
   const layers = [];
+
+  let tileLayer = null;
 
   function init() {
     if (map) return;
-    map = L.map("route-map", { scrollWheelZoom: false }).setView([34.03, -118.36], 11);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 15,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    map = L.map("route-map", { scrollWheelZoom: true }).setView([34.03, -118.36], 11);
+    tileLayer = MapTiles.add(map);
+    document.addEventListener("themechange", () => {
+      tileLayer = MapTiles.swap(map, tileLayer);
+    });
   }
 
   function renderRoutes(data) {
+    lastData = data;
     layers.forEach((l) => map.removeLayer(l));
     layers.length = 0;
 
     const box = document.getElementById("route-options");
     if (!data.options || !data.options.length) {
-      box.innerHTML = `<div class="placeholder" style="padding:20px 10px;">${data.error || "No route found."}</div>`;
+      box.innerHTML = `<div class="placeholder" style="padding:20px 10px;">${data.error || I18N.t("route.noRoute")}</div>`;
       return;
     }
 
@@ -35,7 +39,7 @@ const Routing = (() => {
         opacity: opt.kind === "safest" ? 0.9 : 0.6,
         dashArray: opt.kind === "fastest" ? "8 6" : null,
       }).addTo(map);
-      line.bindPopup(`<b>${opt.label}</b><br/>${opt.minutes} min · ${opt.miles} mi<br/>Est. accident probability: ${fmt.prob(opt.risk_prob)}`);
+      line.bindPopup(`<b>${opt.label}</b><br/>${opt.minutes} ${I18N.t("route.min")} · ${opt.miles} ${I18N.t("route.mi")}<br/>${I18N.t("route.estProb")}: ${fmt.prob(opt.risk_prob)}`);
       layers.push(line);
       bounds = bounds.concat(opt.coords);
     });
@@ -48,12 +52,12 @@ const Routing = (() => {
         <div class="route-option ${opt.kind}">
           <div class="ro-head">
             ${opt.label}
-            ${opt.kind === "safest" ? '<span class="tag">recommended</span>' : ''}
+            ${opt.kind === "safest" ? `<span class="tag">${I18N.t("route.recommended")}</span>` : ''}
           </div>
           <div class="ro-meta">
-            <span>${opt.minutes} min</span>
-            <span>${opt.miles} mi</span>
-            <span>Risk ${fmt.prob(opt.risk_prob)}</span>
+            <span>${opt.minutes} ${I18N.t("route.min")}</span>
+            <span>${opt.miles} ${I18N.t("route.mi")}</span>
+            <span>${I18N.t("route.risk")} ${fmt.prob(opt.risk_prob)}</span>
           </div>
         </div>
       `).join("");
@@ -69,6 +73,13 @@ const Routing = (() => {
 
   function wire() {
     document.getElementById("btn-route").addEventListener("click", load);
+    // Location autocomplete on both endpoints (fills the field; user then
+    // clicks "Find safe route").
+    Autocomplete.attach(document.getElementById("route-from"), { onSelect: () => {} });
+    Autocomplete.attach(document.getElementById("route-to"), { onSelect: () => {} });
+    document.addEventListener("langchange", () => {
+      if (lastData) renderRoutes(lastData);
+    });
   }
 
   function invalidateSize() {
