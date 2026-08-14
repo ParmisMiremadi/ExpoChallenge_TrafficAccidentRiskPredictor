@@ -1,9 +1,9 @@
-/* Theme-aware Leaflet basemap tiles. Light mode uses CARTO Positron (clean,
-   pale); dark mode uses CARTO Dark Matter so the map blends into dark mode
+/* Theme-aware Leaflet basemap tiles. Light mode uses CARTO Voyager (clean, with
+   blue water); dark mode uses CARTO Dark Matter so the map blends into dark mode
    instead of glaring white. Shared by the risk map and the routing map. */
 
 const MapTiles = (() => {
-  const LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+  const LIGHT = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
   const ATTR = "&copy; OpenStreetMap contributors &copy; CARTO";
 

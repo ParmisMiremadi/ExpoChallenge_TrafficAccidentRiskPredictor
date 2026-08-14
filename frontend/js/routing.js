@@ -73,6 +73,10 @@ const Routing = (() => {
 
   function wire() {
     document.getElementById("btn-route").addEventListener("click", load);
+    // Location autocomplete on both endpoints (fills the field; user then
+    // clicks "Find safe route").
+    Autocomplete.attach(document.getElementById("route-from"), { onSelect: () => {} });
+    Autocomplete.attach(document.getElementById("route-to"), { onSelect: () => {} });
     document.addEventListener("langchange", () => {
       if (lastData) renderRoutes(lastData);
     });

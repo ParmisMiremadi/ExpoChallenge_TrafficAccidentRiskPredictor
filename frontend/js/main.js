@@ -96,9 +96,9 @@ async function refreshMap() {
   } else {
     const data = await API.riskMap(State.hour, State.metric, "state");
     if (seq !== mapReqSeq) return;
-    await RiskMap.renderStates(data.states, State.metric);
+    await RiskMap.renderStates(data.states, State.metric, State.hour);
     summary = data.summary;
-    document.getElementById("map-hint-text").textContent = I18N.t("map.zoomRoads");
+    document.getElementById("map-hint-text").textContent = I18N.t("map.zoomCounties");
     document.getElementById("stat-label-total").textContent = I18N.t("stat.states");
   }
 
@@ -163,6 +163,14 @@ function wireControls() {
   const search = document.getElementById("map-search-input");
   search.addEventListener("keydown", (e) => {
     if (e.key === "Enter") RiskMap.flyToState(search.value.trim());
+  });
+  // Suggestions: pick a state to fly to it, or a county/city to zoom into
+  // county detail there.
+  Autocomplete.attach(search, {
+    onSelect: (it) => {
+      if (it.type === "state") RiskMap.flyToState(it.label);
+      else RiskMap.flyTo(it.lat, it.lng, 8);
+    },
   });
 }
 
