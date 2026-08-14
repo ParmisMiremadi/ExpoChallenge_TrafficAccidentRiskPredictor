@@ -1,5 +1,5 @@
 """
-TraffiQ - Traffic Accident Risk Predictor.
+SafeVector - Traffic Accident Risk Predictor.
 
 Flask backend. Serves the frontend and the live API, all backed by the trained
 occurrence model:
@@ -66,6 +66,11 @@ def js(filename):
 @app.route("/data/<path:filename>")
 def data(filename):
     return send_from_directory(os.path.join(FRONTEND_DIR, "data"), filename)
+
+
+@app.route("/img/<path:filename>")
+def img(filename):
+    return send_from_directory(os.path.join(FRONTEND_DIR, "img"), filename)
 
 
 # --------------------------------------------------------------------------- #
@@ -212,8 +217,22 @@ def risk_map():
     if level == "road":
         return jsonify(serving.road_scores(hour))
 
+    if level == "county":
+        return jsonify(serving.compute_counties(hour, metric=metric))
+
     # Default: state choropleth, scored live by the real model.
     return jsonify(serving.compute(hour, metric=metric))
+
+
+@app.route("/api/suggest")
+def suggest():
+    """Location autocomplete: states, counties, and cities matching `q`."""
+    q = request.args.get("q", "")
+    try:
+        limit = int(request.args.get("limit", 8))
+    except (TypeError, ValueError):
+        limit = 8
+    return jsonify(serving.suggest(q, limit=limit))
 
 
 @app.route("/api/zones")
@@ -257,4 +276,4 @@ if __name__ == "__main__":
     # Only warm in the reloader's worker process, not the supervisor.
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         threading.Thread(target=_warm, daemon=True).start()
-    app.run(host="127.0.0.1", port=5000, debug=True, threaded=True)
+    app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5000)), debug=True, threaded=True)

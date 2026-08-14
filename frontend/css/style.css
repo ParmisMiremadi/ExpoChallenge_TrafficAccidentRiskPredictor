@@ -99,7 +99,7 @@ a { color: inherit; }
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  padding: 22px 18px;
+  padding: 40px 18px 22px;
   overflow-y: auto;
 }
 
@@ -114,8 +114,9 @@ a { color: inherit; }
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-  color: #fff;
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,7 +250,7 @@ nav.nav {
 /* ------------------------------------------------------------------ */
 .main {
   flex: 1;
-  padding: 20px 24px;
+  padding: 38px 24px 20px;
   overflow-y: auto;
 }
 
@@ -349,6 +350,10 @@ nav.nav {
 }
 
 #map { width: 100%; height: 100%; }
+
+/* Water-toned base behind tiles so the ocean/edges read blue, not gray. */
+.leaflet-container { background: #aadaf0; }
+:root[data-theme="dark"] .leaflet-container { background: #0e1a24; }
 
 .map-legend {
   position: absolute;
@@ -974,53 +979,130 @@ table.data-table tr:last-child td { border-bottom: none; }
 }
 
 /* ------------------------------------------------------------------ */
-/* Sleek animated gradient accent (top of screen)                      */
+/* Flowing "safe path" accent lines (top of screen)                    */
 /* ------------------------------------------------------------------ */
 .top-accent {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 40px;
   z-index: 1200;
   pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    var(--blue), var(--green), var(--amber),
-    var(--orange), var(--red), var(--blue)
-  );
-  background-size: 200% 100%;
-  animation: accent-slide 14s linear infinite;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
 }
 
-/* soft blurred glow that echoes the bar just beneath it */
-.top-accent-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(
-    90deg,
-    var(--blue), var(--green), var(--amber),
-    var(--orange), var(--red), var(--blue)
-  );
-  background-size: 200% 100%;
-  animation: accent-slide 14s linear infinite;
-  filter: blur(22px);
-  opacity: .28;
-  -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-  mask-image: linear-gradient(to bottom, #000, transparent);
+.top-accent svg { width: 100%; height: 100%; display: block; }
+
+/* the two calm route lines */
+.tp-line {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
-@keyframes accent-slide {
-  from { background-position: 0 0; }
-  to   { background-position: 200% 0; }
+.tp-a {
+  stroke: url(#tpGrad);
+  stroke-width: 2.6;
+  opacity: .9;
+  filter: drop-shadow(0 0 5px rgba(31, 166, 114, .45));
+}
+
+.tp-b {
+  stroke: url(#tpGrad2);
+  stroke-width: 1.5;
+  opacity: .45;
+}
+
+/* a soft highlight that glides along the main route, like a live path */
+.tp-pulse {
+  fill: none;
+  stroke: #eafff7;
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 80 3000;
+  filter: drop-shadow(0 0 6px rgba(47, 95, 224, .7));
+  animation: tp-travel 7s linear infinite;
+}
+
+@keyframes tp-travel {
+  from { stroke-dashoffset: 3080; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* glowing waypoints */
+.tp-node {
+  fill: #ffffff;
+  stroke: #1ea672;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 4px rgba(20, 184, 166, .8));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tp-pulse 3.2s ease-in-out infinite;
+}
+
+.tp-node-2 { animation-delay: .6s; }
+.tp-node-3 { animation-delay: 1.2s; }
+
+@keyframes tp-pulse {
+  0%, 100% { opacity: .5; transform: scale(.85); }
+  50%      { opacity: 1;  transform: scale(1.15); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .top-accent, .top-accent-glow { animation: none; }
+  .tp-pulse, .tp-node { animation: none; }
+  .tp-pulse { opacity: 0; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Location autocomplete dropdown                                      */
+/* ------------------------------------------------------------------ */
+.ac-list {
+  position: fixed;
+  z-index: 1400;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.ac-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+
+.ac-item:last-child { border-bottom: none; }
+.ac-item.active, .ac-item:hover { background: var(--blue-light); }
+
+.ac-type {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  min-width: 54px;
+  text-align: center;
+}
+
+.ac-type-state { background: var(--blue-light); color: var(--blue-dark); }
+.ac-type-county { background: var(--amber-bg); color: var(--amber); }
+.ac-type-city { background: var(--green-bg); color: var(--green); }
+
+.ac-label { color: var(--ink); }
 
 /* ------------------------------------------------------------------ */
 /* Sidebar tools: theme toggle + language switch                       */

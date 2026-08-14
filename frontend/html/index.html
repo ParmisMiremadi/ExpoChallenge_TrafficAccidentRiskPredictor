@@ -3,16 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TraffiQ — Traffic Accident Risk Predictor</title>
+<title>SafeVector — Traffic Accident Risk Predictor</title>
+<link rel="icon" type="image/svg+xml" href="/img/brand/safevector-icon.svg" />
+<link rel="icon" type="image/png" href="/img/brand/favicon-32.png" sizes="32x32" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="/css/style.css" />
 <!-- Apply saved theme + language before first paint to avoid a flash. -->
 <script>
   (function () {
     try {
-      var t = localStorage.getItem("traffiq-theme") || "light";
+      var t = localStorage.getItem("safevector-theme") || "light";
       document.documentElement.setAttribute("data-theme", t);
-      var l = localStorage.getItem("traffiq-lang") || "en";
+      var l = localStorage.getItem("safevector-lang") || "en";
       document.documentElement.setAttribute("lang", l);
       document.documentElement.setAttribute("dir", l === "fa" ? "rtl" : "ltr");
     } catch (e) {}
@@ -21,9 +23,29 @@
 </head>
 <body>
 
-<!-- ===== Sleek animated gradient accent across the very top ===== -->
+<!-- ===== Flowing "safe path" accent lines across the very top ===== -->
 <div class="top-accent" aria-hidden="true">
-  <div class="top-accent-glow"></div>
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="tpGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2f5fe0" />
+        <stop offset="45%" stop-color="#14b8a6" />
+        <stop offset="100%" stop-color="#1ea672" />
+      </linearGradient>
+      <linearGradient id="tpGrad2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#1ea672" />
+        <stop offset="55%" stop-color="#2f5fe0" />
+        <stop offset="100%" stop-color="#14b8a6" />
+      </linearGradient>
+      <path id="tpPathA" d="M-40,42 C240,6 430,6 680,34 C900,58 1080,58 1320,30 C1400,20 1440,17 1500,22" />
+    </defs>
+    <use href="#tpPathA" class="tp-line tp-a" />
+    <path class="tp-line tp-b" d="M-40,30 C260,60 480,56 700,30 C920,6 1100,8 1340,34 C1410,42 1450,45 1500,40" />
+    <use href="#tpPathA" class="tp-pulse" />
+    <circle class="tp-node tp-node-1" cx="170" cy="20" r="2.6" />
+    <circle class="tp-node tp-node-2" cx="690" cy="34" r="2.6" />
+    <circle class="tp-node tp-node-3" cx="1210" cy="33" r="2.6" />
+  </svg>
 </div>
 
 <div class="app">
@@ -33,32 +55,16 @@
 
     <div class="brand">
       <div class="brand-mark">
-        <svg viewBox="0 0 48 48" width="38" height="38" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="lgRoad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#28324a" />
-              <stop offset="100%" stop-color="#161d2e" />
-            </linearGradient>
-          </defs>
-          <!-- open navy ring -->
-          <path d="M24 3.5a20.5 20.5 0 1 0 14 5.4" fill="none" stroke="#1b2436" stroke-width="3.4" stroke-linecap="round" />
-          <!-- winding road -->
-          <path d="M14 41 C17 32 12 27 20 22 C27 18 22 13 30 9" fill="none" stroke="url(#lgRoad)" stroke-width="7.5" stroke-linecap="round" />
-          <path d="M14 41 C17 32 12 27 20 22 C27 18 22 13 30 9" fill="none" stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.6 3.4" opacity=".85" />
-          <!-- rising bars -->
-          <rect x="30" y="27" width="2.6" height="7" rx="1" fill="#f5521e" />
-          <rect x="34" y="23" width="2.6" height="11" rx="1" fill="#f5521e" />
-          <rect x="38" y="19" width="2.6" height="15" rx="1" fill="#ff6a2b" />
-          <!-- trend dot -->
-          <circle cx="39.3" cy="13.5" r="3.4" fill="#ff5722" opacity=".28" />
-          <circle cx="39.3" cy="13.5" r="1.9" fill="#ff5722" />
-          <!-- warning triangle -->
-          <path d="M15.5 20.5 L21 30 H10 Z" fill="#ff5722" stroke="#fff" stroke-width="1" stroke-linejoin="round" />
-          <path d="M15.5 24 v2.4 M15.5 28 v.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" />
+        <svg viewBox="0 0 130 130" width="38" height="38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SafeVector">
+          <line x1="20" y1="110" x2="118" y2="110" stroke="#7c8aa0" stroke-opacity="0.5" stroke-width="4" stroke-linecap="round" />
+          <rect x="28" y="80" width="16" height="30" rx="4" fill="#1ea672" />
+          <rect x="52" y="60" width="16" height="50" rx="4" fill="#e8b400" />
+          <rect x="76" y="40" width="16" height="70" rx="4" fill="#e0731f" />
+          <rect x="100" y="15" width="16" height="95" rx="4" fill="#d8402f" />
         </svg>
       </div>
       <div class="brand-text">
-        <h1>TraffiQ</h1>
+        <h1>SafeVector</h1>
         <p data-i18n="tagline">Traffic Accident Risk Predictor</p>
       </div>
     </div>
@@ -167,7 +173,7 @@
         <div class="map-badge" id="map-badge"><span data-i18n="map.condLabel">Conditions:</span> <b id="map-badge-text">now</b></div>
         <div class="map-hint">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3-3M11 8v6M8 11h6" /></svg>
-          <span id="map-hint-text" data-i18n="map.zoomRoads">Zoom in for roads</span>
+          <span id="map-hint-text" data-i18n="map.zoomCounties">Zoom in for county detail</span>
         </div>
       </div>
 
@@ -338,7 +344,7 @@
       <div class="view-header">
         <div>
           <h2 data-i18n="overview.title">Project Overview</h2>
-          <p data-i18n="overview.subtitle">Model performance at a glance — how well TraffiQ predicts and ranks accident risk</p>
+          <p data-i18n="overview.subtitle">Model performance at a glance — how well SafeVector predicts and ranks accident risk</p>
         </div>
       </div>
 
@@ -394,6 +400,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/i18n.js"></script>
 <script src="/js/theme.js"></script>
+<script src="/js/autocomplete.js"></script>
 <script src="/js/charts.js"></script>
 <script src="/js/maptiles.js"></script>
 <script src="/js/map.js"></script>

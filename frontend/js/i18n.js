@@ -6,7 +6,7 @@
    original language. */
 
 const I18N = (() => {
-  const KEY = "traffiq-lang";
+  const KEY = "safevector-lang";
 
   const DICT = {
     en: {
@@ -35,11 +35,13 @@ const I18N = (() => {
       "search.map": "Search a city or road…",
       "map.condLabel": "Conditions:",
       "map.zoomRoads": "Zoom in for roads",
+      "map.zoomCounties": "Zoom in for county detail",
       "map.primaryRoads": "Primary roads (I / US / state)",
       "popup.risk": "Risk",
       "popup.estProb": "Est. probability",
       "popup.avgSeverity": "Avg severity",
       "popup.noData": "No data",
+      "popup.interp": "Estimated from nearby counties",
       "stat.states": "States evaluated",
       "stat.roads": "Roads evaluated",
       "stat.high": "High-risk zones now",
@@ -107,7 +109,7 @@ const I18N = (() => {
       "route.noRoute": "No route found.",
 
       "overview.title": "Project Overview",
-      "overview.subtitle": "Model performance at a glance — how well TraffiQ predicts and ranks accident risk",
+      "overview.subtitle": "Model performance at a glance — how well SafeVector predicts and ranks accident risk",
       "overview.model": "Production model",
       "overview.target": "Predicts P(accident) per road × time, calibrated to real-world prevalence",
       "overview.gauges": "Performance metrics",
@@ -156,11 +158,13 @@ const I18N = (() => {
       "search.map": "جستجوی شهر یا جاده…",
       "map.condLabel": "شرایط:",
       "map.zoomRoads": "برای جاده‌ها بزرگ‌نمایی کنید",
+      "map.zoomCounties": "برای جزئیات شهرستان بزرگ‌نمایی کنید",
       "map.primaryRoads": "جاده‌های اصلی (بین‌ایالتی / ملی / ایالتی)",
       "popup.risk": "خطر",
       "popup.estProb": "احتمال تخمینی",
       "popup.avgSeverity": "میانگین شدت",
       "popup.noData": "بدون داده",
+      "popup.interp": "برآورد شده از شهرستان‌های مجاور",
       "stat.states": "ایالت‌های بررسی‌شده",
       "stat.roads": "جاده‌های بررسی‌شده",
       "stat.high": "مناطق پرخطر کنونی",
@@ -228,7 +232,7 @@ const I18N = (() => {
       "route.noRoute": "مسیری یافت نشد.",
 
       "overview.title": "نمای کلی پروژه",
-      "overview.subtitle": "عملکرد مدل در یک نگاه — TraffiQ چقدر خوب خطر تصادف را پیش‌بینی و رتبه‌بندی می‌کند",
+      "overview.subtitle": "عملکرد مدل در یک نگاه — SafeVector چقدر خوب خطر تصادف را پیش‌بینی و رتبه‌بندی می‌کند",
       "overview.model": "مدل عملیاتی",
       "overview.target": "پیش‌بینی احتمال تصادف در هر جاده × زمان، کالیبره‌شده با شیوع واقعی",
       "overview.gauges": "معیارهای عملکرد",
@@ -277,11 +281,13 @@ const I18N = (() => {
       "search.map": "कोई शहर या सड़क खोजें…",
       "map.condLabel": "स्थितियाँ:",
       "map.zoomRoads": "सड़कों के लिए ज़ूम करें",
+      "map.zoomCounties": "काउंटी विवरण के लिए ज़ूम करें",
       "map.primaryRoads": "मुख्य सड़कें (I / US / राज्य)",
       "popup.risk": "जोखिम",
       "popup.estProb": "अनुमानित संभावना",
       "popup.avgSeverity": "औसत गंभीरता",
       "popup.noData": "कोई डेटा नहीं",
+      "popup.interp": "आस-पास की काउंटियों से अनुमानित",
       "stat.states": "मूल्यांकित राज्य",
       "stat.roads": "मूल्यांकित सड़कें",
       "stat.high": "अभी उच्च जोखिम क्षेत्र",
@@ -349,7 +355,7 @@ const I18N = (() => {
       "route.noRoute": "कोई मार्ग नहीं मिला।",
 
       "overview.title": "प्रोजेक्ट अवलोकन",
-      "overview.subtitle": "एक नज़र में मॉडल प्रदर्शन — TraffiQ दुर्घटना जोखिम की भविष्यवाणी और रैंकिंग कितनी अच्छी करता है",
+      "overview.subtitle": "एक नज़र में मॉडल प्रदर्शन — SafeVector दुर्घटना जोखिम की भविष्यवाणी और रैंकिंग कितनी अच्छी करता है",
       "overview.model": "प्रोडक्शन मॉडल",
       "overview.target": "प्रति सड़क × समय दुर्घटना संभावना का पूर्वानुमान, वास्तविक प्रसार के अनुसार कैलिब्रेटेड",
       "overview.gauges": "प्रदर्शन मेट्रिक्स",
@@ -398,11 +404,13 @@ const I18N = (() => {
       "search.map": "Busca una ciudad o carretera…",
       "map.condLabel": "Condiciones:",
       "map.zoomRoads": "Amplía para ver carreteras",
+      "map.zoomCounties": "Amplía para ver el detalle por condado",
       "map.primaryRoads": "Carreteras principales (I / US / estatal)",
       "popup.risk": "Riesgo",
       "popup.estProb": "Prob. estimada",
       "popup.avgSeverity": "Gravedad media",
       "popup.noData": "Sin datos",
+      "popup.interp": "Estimado a partir de condados cercanos",
       "stat.states": "Estados evaluados",
       "stat.roads": "Carreteras evaluadas",
       "stat.high": "Zonas de alto riesgo ahora",
@@ -470,7 +478,7 @@ const I18N = (() => {
       "route.noRoute": "No se encontró ninguna ruta.",
 
       "overview.title": "Resumen del proyecto",
-      "overview.subtitle": "Rendimiento del modelo de un vistazo — qué tan bien TraffiQ predice y clasifica el riesgo de accidente",
+      "overview.subtitle": "Rendimiento del modelo de un vistazo — qué tan bien SafeVector predice y clasifica el riesgo de accidente",
       "overview.model": "Modelo en producción",
       "overview.target": "Predice P(accidente) por carretera × hora, calibrado a la prevalencia real",
       "overview.gauges": "Métricas de rendimiento",

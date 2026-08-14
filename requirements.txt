@@ -1,4 +1,4 @@
-# TraffiQ — dependencies to RUN the app.
+# SafeVector — dependencies to RUN the app.
 # Tested with Python 3.12. Install with:  pip install -r requirements.txt
 flask>=3.0
 flask-cors>=4.0

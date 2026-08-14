@@ -3,7 +3,7 @@
    modules can listen for the `themechange` event to re-render (e.g. Plotly). */
 
 const Theme = (() => {
-  const KEY = "traffiq-theme";
+  const KEY = "safevector-theme";
 
   function current() {
     return document.documentElement.getAttribute("data-theme") || "light";

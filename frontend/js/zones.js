@@ -108,7 +108,7 @@ const Zones = (() => {
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "traffiq-dangerous-zones.csv";
+    a.download = "safevector-dangerous-zones.csv";
     a.click();
     URL.revokeObjectURL(a.href);
   }
