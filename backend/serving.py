@@ -201,7 +201,8 @@ def compute(hour, date=None, metric="risk"):
         "level": "state", "hour": int(hour), "metric": metric,
         "time_period": time_period(hour), "states": states,
         "summary": {"total": len(states), "high_risk": high, "alerts": alerts,
-                    "top_zone": STATE_FULL.get(top_abbr, top_abbr)},
+                    "top_zone": STATE_FULL.get(top_abbr, top_abbr),
+                    "top_zone_prob": round(float(state[top_abbr]), 6)},
     }
 
 
@@ -369,6 +370,15 @@ def score_locations(lats, lngs, hour=None, date=None):
     return ms.predict(df)["prob"]
 
 
+def _nearest_county_label(lat, lng):
+    """Nearest county (by centroid distance) to a point, as 'County, ST' —
+    used to name a road segment, which carries no place name of its own."""
+    prof = _county_meta.reset_index()
+    d = (prof["Start_Lat"].to_numpy() - lat) ** 2 + (prof["Start_Lng"].to_numpy() - lng) ** 2
+    row = prof.iloc[int(np.argmin(d))]
+    return f"{row['County']}, {row['State']}"
+
+
 def road_scores(hour=None, date=None):
     """Per-segment risk tier for every primary road, aligned to geojson order."""
     date = date or datetime.date.today()
@@ -379,6 +389,7 @@ def road_scores(hour=None, date=None):
         if key in _road_cache:
             return _road_cache[key]
 
+    _load()
     rf = _load_roads().copy()
     for k, v in temporal_features(date, hour).items():
         rf[k] = v
@@ -387,12 +398,17 @@ def road_scores(hour=None, date=None):
     prob = ms.predict(rf)["prob"]
     tiers = ms.tier_of(prob)
     high = int(np.isin(tiers, ["High", "Critical"]).sum())
+
+    top_i = int(np.argmax(prob))
+    top_label = _nearest_county_label(rf["Start_Lat"].iat[top_i], rf["Start_Lng"].iat[top_i])
+
     result = {
         "level": "road", "hour": int(hour), "time_period": time_period(hour),
         "tiers": tiers.tolist(),
         "summary": {"total": int(len(rf)), "high_risk": high,
                     "alerts": int((tiers == "Critical").sum()),
-                    "top_zone": "Road network"},
+                    "top_zone": top_label,
+                    "top_zone_prob": round(float(prob[top_i]), 6)},
     }
     with _lock:
         _road_cache[key] = result

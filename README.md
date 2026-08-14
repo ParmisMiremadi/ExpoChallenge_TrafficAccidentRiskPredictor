@@ -60,13 +60,17 @@ than "which past crashes were bad."
 
 ## 3. The dashboard
 
-Everything runs from a single backend. Four sections:
+Everything runs from a single backend. Five sections:
 
 1. **Live Risk Map** — the whole US, scored live. Toggle **State ↔ Road**
-   (state choropleth zooms into the real 17,424-segment primary-road network)
-   and **Risk ↔ Severity**. An **hour slider** (default = now) re-scores the
-   country; season, weekend, and weather are inferred from the current date and
-   a live forecast. Click any area for its probability, tier, and reasons.
+   and **Risk ↔ Severity**. In State mode, zooming in past state level swaps
+   the choropleth to a **per-county view** (each of ~2,850 modeled counties
+   scored individually; counties outside the model's coverage are filled by
+   interpolating their nearest scored neighbors, clearly marked as estimated).
+   Road mode renders the real 17,424-segment primary-road network. An **hour
+   slider** (default = now) re-scores the country; season, weekend, and
+   weather are inferred from the current date and a live forecast. Click any
+   area for its probability, tier, and reasons.
 2. **Dangerous Zones & Alerts** — the highest-risk counties under current
    conditions, each with its risk %, contributing factors, a prevention
    recommendation, and expandable details. One-click CSV export.
@@ -75,6 +79,20 @@ Everything runs from a single backend. Four sections:
 4. **Safe Routing** — enter start & destination; candidate routes are ranked by
    the model's per-segment risk, surfacing the *safest* route, not just the
    fastest.
+5. **Project Overview** — model performance at a glance: Plotly speedometer
+   gauges for ROC-AUC, PR-AUC, precision/recall/F1, Brier score, county-risk
+   Spearman correlation, and hotspot precision/recall, plus feature-importance
+   and calibration charts, served from `/api/metrics`.
+
+Every location search (Live Risk Map, Risk Forecast, Safe Routing's From/To)
+shares one **autocomplete** backed by `/api/suggest`, ranking states, counties,
+and cities as you type.
+
+The whole app supports **dark mode** (persisted toggle) and **English, فارسی,
+हिन्दी, and Español** (persisted, with full RTL layout for Farsi) — both the
+static UI and the strings each view injects at runtime are translated. A brief
+**welcome screen** greets first paint and is dismissed with any key press or
+click.
 
 A **live news ticker** (bottom) blends real National Weather Service alerts with
 optional AI-summarized traffic-news headlines.

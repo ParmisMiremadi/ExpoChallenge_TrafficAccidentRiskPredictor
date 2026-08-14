@@ -105,7 +105,9 @@ async function refreshMap() {
   document.getElementById("stat-total").textContent = summary.total.toLocaleString();
   document.getElementById("stat-high-risk").textContent = summary.high_risk.toLocaleString();
   document.getElementById("stat-alerts").textContent = summary.alerts.toLocaleString();
-  document.getElementById("stat-top-zone").textContent = summary.top_zone;
+  document.getElementById("stat-top-zone").textContent = summary.top_zone_prob != null
+    ? `${summary.top_zone} — ${fmt.prob(summary.top_zone_prob)}`
+    : summary.top_zone;
 }
 
 let alertReqSeq = 0;
@@ -156,6 +158,7 @@ function wireControls() {
       document.querySelectorAll("#level-toggle button").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       State.level = btn.dataset.level;
+      document.getElementById("stat-top-popover").hidden = true;
       refreshMap();
     });
   });
@@ -171,6 +174,35 @@ function wireControls() {
       if (it.type === "state") RiskMap.flyToState(it.label);
       else RiskMap.flyTo(it.lat, it.lng, 8);
     },
+  });
+}
+
+/* "Highest-risk area" info popover: explains that Road mode shows the single
+   riskiest segment (not an area average like State mode), so its percentage
+   can legitimately read higher than the county/state figures shown elsewhere. */
+function wireTopZoneInfo() {
+  const btn = document.getElementById("stat-top-info");
+  const pop = document.getElementById("stat-top-popover");
+
+  function textFor() {
+    return I18N.t(State.level === "road" ? "stat.top.info.road" : "stat.top.info.state");
+  }
+  function close() { pop.hidden = true; }
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!pop.hidden) { close(); return; }
+    pop.textContent = textFor();
+    pop.hidden = false;
+  });
+  document.addEventListener("click", (e) => {
+    if (!pop.hidden && e.target !== btn && !pop.contains(e.target)) close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+  document.addEventListener("langchange", () => {
+    if (!pop.hidden) pop.textContent = textFor();
   });
 }
 
@@ -225,6 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireNav();
   RiskMap.init();
   wireControls();
+  wireTopZoneInfo();
   Zones.wire(() => State.hour);
   Forecast.wire();
   Routing.wire();
