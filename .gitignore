@@ -15,3 +15,6 @@ backend/pipeline/weather_cache/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code local tooling config — not project config
+.claude/
