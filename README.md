@@ -299,8 +299,12 @@ in order — `clean_dataset_v2.py` → `fetch_weather.py` → `join_features.py`
 ## 12. Credits
 
 - Accident data: *US Accidents* (Moosavi et al.).
-- Weather: Open-Meteo (ERA5 archive + forecast). Roads & boundaries: US Census
-  TIGER/Line. Routing: OSRM / OpenStreetMap. Alerts: US National Weather Service.
+- Weather: Open-Meteo (ERA5 archive + forecast). Roads & state boundaries: US
+  Census TIGER/Line. County boundaries:
+  [plotly/datasets](https://github.com/plotly/datasets) `geojson-counties-fips`
+  (US Census derived). Routing: OSRM / OpenStreetMap. Map tiles: CARTO
+  (Voyager / Dark Matter) on OpenStreetMap data. Alerts: US National Weather
+  Service.
 - Built for INNOVERSE 2026.
 
 ---
