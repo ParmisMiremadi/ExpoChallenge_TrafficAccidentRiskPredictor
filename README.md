@@ -191,7 +191,6 @@ precisely what keeps early warnings *reliable* rather than noisy.
 ## 8. Architecture
 
 ```
-webapp_v3/
 ├── backend/
 │   ├── app.py                 Flask app: serves the UI + JSON API
 │   ├── model_service.py       load model, predict → calibrate → tier
@@ -201,7 +200,12 @@ webapp_v3/
 │   ├── news_service.py        NWS + optional Jina/Gemini ticker feed
 │   ├── artifacts/             trained model + serving tables + metrics
 │   └── pipeline/              data-prep & training scripts
-└── frontend/                  HTML / CSS / vanilla JS (Leaflet + Chart.js)
+└── frontend/
+    ├── html/index.html        app shell (sidebar + 5 views)
+    ├── css/style.css          theme tokens, light/dark, RTL
+    ├── js/                    vanilla JS, one module per view/concern
+    ├── img/brand/             logo + favicon assets
+    └── data/                  states/counties/roads GeoJSON
 ```
 
 The serving layer was validated to **reproduce the trained model's metrics
@@ -213,14 +217,14 @@ Spearman **0.998** — so the app is fast without sacrificing fidelity.
 
 ## 9. Running it
 
-**Windows — double-click** `webapp_v3/run.bat`, then open
+**Windows — double-click** `run.bat`, then open
 <http://127.0.0.1:5000>.
 
 **Any platform — one command:**
 
 ```bash
-pip install -r webapp_v3/requirements.txt   # first time only
-python webapp_v3/run.py                      # then open http://127.0.0.1:5000
+pip install -r requirements.txt   # first time only
+python run.py                     # then open http://127.0.0.1:5000
 ```
 
 `run.py` simply launches `backend/app.py` (which is where the model, its
