@@ -20,7 +20,12 @@ python run.py                        # then open http://127.0.0.1:5000
 ```
 
 Runs with **no API keys**. The first launch takes ~15–20 seconds to fetch the
-live weather grid, then it's instant. Full details in §9.
+live weather grid, then it's instant. Full details in §10.
+
+**Dependencies** (installed by the command above, from `requirements.txt`):
+Flask, Flask-CORS, XGBoost, scikit-learn, pandas, and NumPy — Python 3.12.
+The frontend needs no install step; it loads Leaflet, Chart.js, and Plotly.js
+from a CDN at runtime.
 
 ---
 
@@ -45,16 +50,16 @@ than "which past crashes were bad."
 
 | Brief item | How SafeVector delivers it |
 |---|---|
-| Analyze road & traffic data | 3.8M road-time records; 22 features spanning geography, road infrastructure, time, and weather (§4) |
-| Predict accident risk levels | Calibrated probability + Low/Medium/High/Critical tier for any place & time (§5) |
+| Analyze road & traffic data | 3.8M road-time records; 22 features spanning geography, road infrastructure, time, and weather (§5) |
+| Predict accident risk levels | Calibrated probability + Low/Medium/High/Critical tier for any place & time (§6) |
 | Detect dangerous zones | Live ranked list of highest-risk counties, each with its contributing factors |
 | Adapt predictions to seasonal conditions | `Season` and cyclical `Month` are model inputs — the same road scores differently across the year, automatically |
-| Reduce false alarms | Prior-correction calibration + a tuned operating point balancing recall vs. precision (§6) |
+| Reduce false alarms | Prior-correction calibration + a tuned operating point balancing recall vs. precision (§7) |
 | Risk-level predictions | Interactive map (state choropleth + road network) reacting to an hour slider |
 | High-risk area identification | Map hotspots + the Dangerous Zones panel |
 | Safety alerts & reports | Live alerts feed; exportable CSV report of top zones |
 | Prevention recommendations | Each zone carries a plain-language recommendation derived from its dominant risk factor |
-| **Reliable early warning; balance sensitivity vs. false alarms** | 7-day / 24-hour **Risk Forecast**, and an operating point of **recall 0.95 at precision 0.73** (§6) |
+| **Reliable early warning; balance sensitivity vs. false alarms** | 7-day / 24-hour **Risk Forecast**, and an operating point of **recall 0.95 at precision 0.73** (§7) |
 
 ---
 
@@ -99,7 +104,42 @@ optional AI-summarized traffic-news headlines.
 
 ---
 
-## 4. The model
+## 4. What's beyond the brief (the innovations)
+
+Section 2 covers what the brief asked for. This is what we added on top of it:
+
+- **County-level drill-down** — zooming into the Live Risk Map's State view
+  swaps the choropleth to ~2,850 individually-scored counties. Counties
+  outside the model's direct coverage are filled by interpolating their
+  nearest scored neighbors instead of leaving a gap, and are clearly marked
+  as estimated.
+- **Risk vs. severity** — state/county risk is a *live average*
+  of the model's per-point predictions; road risk is **not** an average, each
+  of the 17,424 segments gets its own independent live prediction; severity
+  (either view) is a real historical aggregate, never a model output. The map
+  never conflates "how likely" with "how bad."
+- **One shared autocomplete** — a single ranked state/county/city search
+  (`/api/suggest`) powers the map search, the forecast search, and both Safe
+  Routing fields.
+- **Model transparency, built in** — the Project Overview tab renders the
+  real evaluation metrics (ROC-AUC, PR-AUC, precision/recall/F1, Brier,
+  county-rank Spearman, hotspot precision/recall) as live speedometer gauges,
+  so judges see the numbers, not just a claim in a README.
+- **Full i18n, not just labels** — English, Farsi, Hindi, and Spanish,
+  including a complete RTL layout for Farsi; both the static UI and the
+  strings each view injects at runtime (tiers, alerts, popups) are translated.
+- **Theme-aware** — dark mode swaps the UI *and* the map's
+  basemap tiles (CARTO Voyager ↔ Dark Matter), not just colors.
+- **Zero setup friction** — the entire core experience (map, zones, forecast,
+  routing, news) runs with no API keys at all; AI-summarized news is the only
+  optional add-on.
+- **A real welcome screen** — a typewriter-style intro with a live feature
+  showcase, dismissed with any key press or click, transitioning into the app
+  through the logo.
+
+---
+
+## 5. The model
 
 - **Algorithm:** gradient-boosted trees (`XGBoost` classifier), with a logistic
   regression baseline for comparison.
@@ -126,7 +166,7 @@ optional AI-summarized traffic-news headlines.
 
 ---
 
-## 5. Making the numbers trustworthy (calibration)
+## 6. Making the numbers trustworthy (calibration)
 
 The training set is balanced ~50/50 so the model can learn, but the real-world
 base rate of an accident in any single road-time cell is tiny
@@ -142,7 +182,7 @@ come from fixed quantile cutoffs of these calibrated probabilities.
 
 ---
 
-## 6. Results
+## 7. Results
 
 Metrics are from the honest **2021 → 2022** temporal split (1.82M train / 1.69M
 test rows).
@@ -175,7 +215,7 @@ precisely what keeps early warnings *reliable* rather than noisy.
 
 ---
 
-## 7. Live data integrations (all keyless except the optional news layer)
+## 8. Live data integrations (all keyless except the optional news layer)
 
 - **Weather** — [Open-Meteo](https://open-meteo.com/) forecast on a cached
   national grid drives the live map, the forecast view, and the current-conditions
@@ -188,7 +228,7 @@ precisely what keeps early warnings *reliable* rather than noisy.
 
 ---
 
-## 8. Architecture
+## 9. Architecture
 
 ```
 ├── backend/
@@ -215,7 +255,7 @@ Spearman **0.998** — so the app is fast without sacrificing fidelity.
 
 ---
 
-## 9. Running it
+## 10. Running it
 
 **Windows — double-click** `run.bat`, then open
 <http://127.0.0.1:5000>.
@@ -241,7 +281,7 @@ in order — `clean_dataset_v2.py` → `fetch_weather.py` → `join_features.py`
 
 ---
 
-## 10. Honest limitations & future work
+## 11. Honest limitations & future work
 
 - **Road-view infrastructure** is inferred from each road's containing county
   (the TIGER shapefile carries no signal/stop data); the coordinates and route
@@ -256,9 +296,19 @@ in order — `clean_dataset_v2.py` → `fetch_weather.py` → `join_features.py`
 
 ---
 
-## 11. Credits
+## 12. Credits
 
 - Accident data: *US Accidents* (Moosavi et al.).
 - Weather: Open-Meteo (ERA5 archive + forecast). Roads & boundaries: US Census
   TIGER/Line. Routing: OSRM / OpenStreetMap. Alerts: US National Weather Service.
 - Built for INNOVERSE 2026.
+
+---
+
+## 13. Team
+
+- َAmirhossein Jafarnezhad (Team Leader): aiamirjd@gmail.com
+- Parmis Miremadizayd: parmis.mi83@gmail.com
+- Amirreza Abdi Aladezgeh: Amirreza.abdi2005@gmail.com
+- Mostafa Akbari: mooak13860425@gmail.com
+- AmirAli Ansari kalodani: 
